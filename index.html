@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Filmai">
+<meta name="theme-color" content="#1B2440">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Filmų vakarėlis</title>
+<style>
+:root{--bg:#1B2440;--tile:#26325C;--line:#3A4A85;--cream:#FFF4D6;--gold:#FFC93C;--dim:#8F9AC8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--cream)}
+body{font-family:ui-rounded,"SF Pro Rounded","Nunito","Segoe UI Rounded",system-ui,sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;min-height:100vh;
+  padding:max(18px,env(safe-area-inset-top)) max(28px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(28px,env(safe-area-inset-left))}
+h1{margin:0;font-size:44px;font-weight:700;line-height:1.1}
+header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+header .logo{width:64px;height:64px;border-radius:16px}
+button{font:inherit;color:inherit;cursor:pointer}
+.pill{height:56px;padding:0 26px;border-radius:28px;border:3px solid var(--line);background:transparent;font-size:24px;font-weight:600}
+.pill.on{background:var(--cream);color:var(--bg);border-color:var(--cream)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.label{font-size:20px;color:var(--dim);margin-right:2px}
+.chip{height:48px;min-width:48px;padding:0 18px;border-radius:24px;border:3px solid var(--line);background:transparent;font-size:22px;font-weight:600}
+.chip.on{background:var(--cream);color:var(--bg);border-color:var(--cream)}
+.search{position:relative;flex:1 1 320px;max-width:760px}
+.search input{width:100%;height:60px;border-radius:30px;border:3px solid var(--gold);background:var(--tile);color:var(--cream);
+  font:inherit;font-size:24px;padding:0 60px 0 62px;outline:none;-webkit-user-select:text;user-select:text}
+.search input::placeholder{color:var(--dim)}
+.search .ico{position:absolute;left:22px;top:14px;font-size:26px}
+.search .clr{position:absolute;right:10px;top:8px;width:44px;height:44px;border:none;border-radius:22px;background:transparent;font-size:26px;color:var(--dim)}
+.surprise{height:60px;padding:0 28px;border-radius:14px;border:none;background:var(--gold);color:var(--bg);font-size:24px;font-weight:700}
+.cats{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0 6px}
+.cat{width:132px;height:132px;border-radius:24px;border:none;background:var(--tile);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:18px;font-weight:600;padding:6px;text-align:center;line-height:1.1}
+.cat .e{font-size:48px;line-height:1}
+.cat.on{background:var(--gold);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:22px;margin-top:18px}
+.tile{position:relative;aspect-ratio:2/3;border-radius:18px;overflow:hidden;border:none;padding:0;background:var(--tile);box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .nopic{display:flex;align-items:center;justify-content:center;height:100%;padding:14px;font-size:22px;font-weight:700;text-align:center}
+.tile:active{transform:scale(.97)}
+.tile.seen img,.tile.seen .nopic{opacity:.45}
+.badge{position:absolute;top:10px;right:10px;min-width:46px;height:38px;padding:0 10px;border-radius:19px;background:var(--bg);border:3px solid var(--cream);
+  font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.favmark{position:absolute;top:10px;left:10px;width:38px;height:38px;border-radius:19px;background:var(--cream);color:#D6336C;font-size:22px;display:flex;align-items:center;justify-content:center}
+.tick{position:absolute;bottom:10px;right:10px;width:42px;height:42px;border-radius:21px;background:#3DBB6D;color:#fff;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.serbadge{position:absolute;left:10px;bottom:10px;height:36px;padding:0 12px;border-radius:18px;background:var(--bg);border:3px solid var(--cream);font-size:18px;font-weight:600;display:flex;align-items:center}
+.empty{margin:60px 0;text-align:center;font-size:28px;color:var(--dim)}
+.foot{margin-top:34px;text-align:center;color:var(--dim);font-size:16px}
+/* detail sheet */
+#sheet{position:fixed;inset:0;background:rgba(10,14,30,.82);display:flex;align-items:center;justify-content:center;padding:24px;z-index:5}
+#sheet[hidden]{display:none}
+.card{background:var(--bg);border:3px solid var(--line);border-radius:28px;max-width:980px;width:100%;max-height:100%;overflow:auto;display:flex;gap:30px;padding:28px;position:relative}
+.card .pic{flex:0 0 min(300px,36%);align-self:flex-start}
+.card .pic img{width:100%;border-radius:18px;display:block;box-shadow:0 8px 22px rgba(0,0,0,.4)}
+.card .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+.card h2{margin:0;font-size:38px;line-height:1.15}
+.meta{display:flex;gap:10px;flex-wrap:wrap;font-size:22px}
+.meta span{padding:6px 16px;border-radius:20px;background:var(--tile)}
+.find{background:var(--tile);border-radius:20px;padding:18px 22px}
+.find small{display:block;font-size:20px;color:var(--dim);margin-bottom:6px}
+.find b{display:block;font-size:34px;line-height:1.2;word-break:break-word;color:var(--gold)}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.act{height:60px;padding:0 24px;border-radius:30px;border:3px solid var(--line);background:transparent;font-size:22px;font-weight:600}
+.act.on{background:var(--cream);color:var(--bg);border-color:var(--cream)}
+.close{position:absolute;top:14px;right:14px;width:52px;height:52px;border-radius:26px;border:3px solid var(--line);background:var(--bg);font-size:26px}
+@media (max-width:760px){.card{flex-direction:column;align-items:center}.card .pic{flex:none;width:60%}h1{font-size:34px}.cat{width:108px;height:108px}}
+</style>
+</head>
+<body>
+<header>
+  <img class="logo" src="icons/icon-192.png" alt="">
+  <h1>Ką žiūrėsim?</h1>
+</header>
+
+<div class="row" id="kinds" hidden></div>
+<div class="row">
+  <div class="search"><span class="ico">🔍</span><input id="q" type="search" placeholder="Ieškoti filmo..." autocomplete="off" autocapitalize="off" spellcheck="false"><button class="clr" id="clr" hidden aria-label="Išvalyti">✕</button></div>
+  <button class="surprise" id="surprise">🎁 Staigmena!</button>
+</div>
+<div class="row" id="ages"><span class="label">Amžius:</span></div>
+<div class="row" id="groupbar" hidden></div>
+<div class="cats" id="cats"></div>
+<div class="grid" id="grid"></div>
+<div class="empty" id="empty" hidden>Nieko nerasta 🙈</div>
+<div class="foot" id="foot"></div>
+
+<div id="sheet" hidden>
+  <div class="card" role="dialog" aria-modal="true">
+    <button class="close" id="sclose" aria-label="Uždaryti">✕</button>
+    <div class="pic" id="spic"></div>
+    <div class="info">
+      <h2 id="stitle"></h2>
+      <div class="meta" id="smeta"></div>
+      <div class="find"><small>📁 Raskite diske:</small><b id="shint"></b></div>
+      <div class="actions">
+        <button class="act" id="afav">♡ Mėgstamas</button>
+        <button class="act" id="aseen">✓ Žiūrėta</button>
+        <button class="act" id="acopy">📋 Kopijuoti pavadinimą</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="catalog.js"></script>
+<script>
+"use strict";
+const DATA = window.CATALOG || { items: [], groups: [], generated: "" };
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private mode: keep going */ } },
+};
+let fav = new Set(store.get("fav", []));
+let seen = new Set(store.get("seen", []));
+let kind = "all", age = 0, groupKey = (DATA.groups[0] || {}).key || "", cat = null, query = "", current = null;
+const hasSeries = DATA.items.some((m) => m.series);
+const catInfo = {};                                          // name -> {label, icon}
+DATA.groups.forEach((g) => g.items.forEach((i) => { catInfo[i.name] = i; }));
+
+const norm = (t) => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+const save = () => { store.set("fav", [...fav]); store.set("seen", [...seen]); };
+
+function mkBtn(cls, text, on, fn) {
+  const b = document.createElement("button");
+  b.className = cls + (on ? " on" : "");
+  b.textContent = text;
+  b.onclick = fn;
+  return b;
+}
+
+function renderKinds() {
+  const box = $("kinds");
+  box.hidden = !hasSeries;
+  if (!hasSeries) return;
+  box.replaceChildren(
+    mkBtn("pill", "Viskas", kind === "all", () => { kind = "all"; renderAll(); }),
+    mkBtn("pill", "🎬 Filmai", kind === "movie", () => { kind = "movie"; renderAll(); }),
+    mkBtn("pill", "📺 Serialai", kind === "series", () => { kind = "series"; renderAll(); }));
+}
+
+function renderAges() {
+  const box = $("ages");
+  box.replaceChildren(Object.assign(document.createElement("span"), { className: "label", textContent: "Amžius:" }));
+  [[0, "Visi"], [2, "2"], [4, "4"], [6, "6"], [8, "8"]].forEach(([v, t]) =>
+    box.appendChild(mkBtn("chip", t, age === v, () => { age = v; renderAll(); })));
+}
+
+function baseList() {
+  return DATA.items.filter((m) => (kind === "all" || (kind === "series") === !!m.series) && (age === 0 || m.a <= age));
+}
+
+function renderCats(list) {
+  const gb = $("groupbar");
+  gb.hidden = DATA.groups.length < 2;
+  gb.replaceChildren(...DATA.groups.map((g) => mkBtn("pill", g.icon + " " + g.label, g.key === groupKey, () => { groupKey = g.key; cat = null; renderAll(); })));
+  const g = DATA.groups.find((x) => x.key === groupKey);
+  const box = $("cats");
+  const nodes = [];
+  const add = (key, emoji, label) => {
+    const b = document.createElement("button");
+    b.className = "cat" + (cat === key ? " on" : "");
+    b.innerHTML = '<span class="e"></span><span></span>';
+    b.children[0].textContent = emoji;
+    b.children[1].textContent = label;
+    b.onclick = () => { cat = key; renderAll(); };
+    nodes.push(b);
+  };
+  add(null, "⭐", "Visi");
+  add("__fav", "❤️", "Mėgstami");
+  if (g) {
+    g.items.forEach((i) => {
+      if (list.some((m) => ((m.g || {})[g.key] || []).includes(i.name))) add(i.name, i.icon, i.label);
+    });
+  }
+  box.replaceChildren(...nodes);
+}
+
+function filtered() {
+  let list = baseList();
+  if (query) {
+    const q = norm(query);
+    list = list.filter((m) => (m.k && m.k.includes(q)) || norm(m.t).includes(q));
+  } else if (cat === "__fav") {
+    list = list.filter((m) => fav.has(m.id));
+  } else if (cat) {
+    list = list.filter((m) => ((m.g || {})[groupKey] || []).includes(cat));
+  }
+  return list;
+}
+
+function renderGrid() {
+  const list = filtered();
+  const grid = $("grid");
+  grid.replaceChildren(...list.map((m) => {
+    const b = document.createElement("button");
+    b.className = "tile" + (seen.has(m.id) ? " seen" : "");
+    b.setAttribute("aria-label", m.t);
+    if (m.p) { const im = document.createElement("img"); im.src = m.p; im.alt = ""; im.draggable = false; b.appendChild(im); }
+    else { const d = document.createElement("div"); d.className = "nopic"; d.textContent = m.t; b.appendChild(d); }
+    if (m.a) b.insertAdjacentHTML("beforeend", `<span class="badge">${m.a}+</span>`);
+    if (fav.has(m.id)) b.insertAdjacentHTML("beforeend", '<span class="favmark">♥</span>');
+    if (seen.has(m.id)) b.insertAdjacentHTML("beforeend", '<span class="tick">✓</span>');
+    if (m.series) b.insertAdjacentHTML("beforeend", `<span class="serbadge">${m.n} sez.</span>`);
+    b.onclick = () => openSheet(m);
+    return b;
+  }));
+  $("empty").hidden = list.length > 0;
+  return list;
+}
+
+function renderAll() {
+  renderKinds();
+  renderAges();
+  renderCats(baseList());
+  renderGrid();
+  $("clr").hidden = !query;
+}
+
+function openSheet(m) {
+  current = m;
+  $("spic").replaceChildren(...(m.p ? [Object.assign(document.createElement("img"), { src: m.p, alt: "" })] : []));
+  $("stitle").textContent = m.t;
+  const meta = $("smeta");
+  meta.replaceChildren();
+  if (m.a) meta.appendChild(Object.assign(document.createElement("span"), { textContent: m.a + "+ metų" }));
+  if (m.series) meta.appendChild(Object.assign(document.createElement("span"), { textContent: "📺 Serialas, sezonų: " + m.n }));
+  ((m.g || {}).categories || []).forEach((c) => {
+    const i = catInfo[c];
+    meta.appendChild(Object.assign(document.createElement("span"), { textContent: (i ? i.icon + " " + i.label : c) }));
+  });
+  $("shint").textContent = m.h || m.t;
+  syncActions();
+  $("sheet").hidden = false;
+}
+
+function syncActions() {
+  if (!current) return;
+  const f = fav.has(current.id), s = seen.has(current.id);
+  $("afav").textContent = f ? "♥ Mėgstamas" : "♡ Mėgstamas";
+  $("afav").classList.toggle("on", f);
+  $("aseen").classList.toggle("on", s);
+  $("aseen").textContent = s ? "✓ Žiūrėta" : "Pažymėti kaip žiūrėtą";
+}
+
+function closeSheet() { $("sheet").hidden = true; current = null; renderGrid(); renderCats(baseList()); }
+
+$("afav").onclick = () => { fav.has(current.id) ? fav.delete(current.id) : fav.add(current.id); save(); syncActions(); };
+$("aseen").onclick = () => { seen.has(current.id) ? seen.delete(current.id) : seen.add(current.id); save(); syncActions(); };
+$("acopy").onclick = async () => {
+  const text = $("shint").textContent;
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) {
+    const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch (e2) { /* nothing more to try */ }
+    ta.remove();
+  }
+  $("acopy").textContent = "✓ Nukopijuota";
+  setTimeout(() => { $("acopy").textContent = "📋 Kopijuoti pavadinimą"; }, 1500);
+};
+$("sclose").onclick = closeSheet;
+$("sheet").onclick = (e) => { if (e.target === $("sheet")) closeSheet(); };
+$("q").oninput = (e) => { query = e.target.value; renderGrid(); $("clr").hidden = !query; };
+$("clr").onclick = () => { query = ""; $("q").value = ""; renderAll(); };
+$("surprise").onclick = () => {
+  const list = filtered();
+  if (list.length) openSheet(list[Math.floor(Math.random() * list.length)]);
+};
+
+$("foot").textContent = DATA.generated ? "Katalogas: " + DATA.generated + " · " + DATA.items.length + " pavadinimų" : "";
+renderAll();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
